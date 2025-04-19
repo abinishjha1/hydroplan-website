@@ -16,14 +16,15 @@ interface Message {
 }
 
 const BOT_RESPONSES = {
-  greeting: "Hello! I'm HydroMan, your hydropower expert. How can I assist you today?",
-  services: "We offer a range of hydropower services including:\n• Feasibility Studies\n• Project Development\n• Operational Optimization\n• Maintenance Services\n• Technical Consultancy",
-  contact: "You can reach us at:\n📧 info@hydroplan.com\n📞 +44 (0) 1234 567890\n📍 Our office is located in the UK",
-  hydropower: "Hydropower is a renewable energy source that generates electricity by using the energy of flowing water. It's one of the most efficient and reliable forms of renewable energy, with typical efficiency rates of 90% or higher.",
-  smallHydro: "Small hydropower systems typically generate between 1-10MW of power. They're ideal for:\n• Remote locations\n• Community power projects\n• Industrial applications\n• Agricultural operations",
-  maintenance: "Our maintenance services include:\n• Regular system inspections\n• Turbine maintenance\n• Generator servicing\n• Control system updates\n• Emergency response",
-  feasibility: "A hydropower feasibility study typically includes:\n• Site assessment\n• Flow analysis\n• Environmental impact\n• Cost estimation\n• ROI calculation\n• Regulatory requirements",
-  default: "I'm here to help with your hydropower questions. You can ask about:\n• General hydropower information\n• Small hydropower systems\n• Maintenance services\n• Feasibility studies\n• Our services\n• Contact information"
+  welcome: "👋 Hi there! I'm HydroMan, your friendly hydropower expert! 💧\n\nI'm here to help you with anything related to hydropower solutions. Feel free to ask me about:\n• Project planning 🏗️\n• Technical details ⚙️\n• Services we offer 📋\n• Or just say hello! 😊",
+  greeting: "Hey! Great to see you! 😊 I'm HydroMan, your hydropower companion. What can I help you discover today?",
+  services: "🌊 Here's what we're great at:\n\n• Feasibility Studies 📊\n• Project Development 🏗️\n• Operational Optimization ⚡\n• Maintenance Services 🔧\n• Technical Consultancy 💡\n\nWhat would you like to know more about?",
+  contact: "📬 Let's get in touch!\n\n📧 info@hydroplan.com\n📞 +44 (0) 1234 567890\n📍 Our office is located in the UK\n\nWe'd love to hear from you!",
+  hydropower: "⚡ Hydropower is amazing! It's a renewable energy source that turns flowing water into electricity. With efficiency rates over 90%, it's one of nature's most powerful gifts to us! Want to know more about how it works?",
+  smallHydro: "🌊 Small but mighty! Our small hydropower systems (1-10MW) are perfect for:\n\n• Remote locations 🏔️\n• Community projects 🏘️\n• Industrial use 🏭\n• Agriculture 🌾\n\nInterested in learning more?",
+  maintenance: "🔧 We keep things flowing smoothly with:\n\n• Regular check-ups 🔍\n• Turbine care 🌀\n• Generator maintenance ⚡\n• System updates 💻\n• 24/7 emergency support 🚨\n\nHow can we help maintain your system?",
+  feasibility: "📊 Our thorough feasibility studies cover:\n\n• Site assessment 🗺️\n• Flow analysis 💧\n• Environmental impact 🌱\n• Cost estimation 💰\n• ROI calculation 📈\n• Regulations check ✅\n\nReady to explore your site's potential?",
+  default: "I'm your friendly hydropower expert! Ask me about:\n\n• Hydropower basics 💧\n• Small hydro systems ⚡\n• Maintenance tips 🔧\n• Feasibility studies 📊\n• Our services 🛠️\n• Getting in touch 📬\n\nWhat interests you most?"
 };
 
 export function ChatWidget() {
@@ -31,6 +32,7 @@ export function ChatWidget() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [hasShownWelcome, setHasShownWelcome] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -40,6 +42,20 @@ export function ChatWidget() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Show welcome message when chat is first opened
+  useEffect(() => {
+    if (isOpen && !hasShownWelcome) {
+      setTimeout(() => {
+        setMessages([{ 
+          text: BOT_RESPONSES.welcome,
+          isUser: false,
+          timestamp: new Date()
+        }]);
+        setHasShownWelcome(true);
+      }, 500);
+    }
+  }, [isOpen, hasShownWelcome]);
 
   const getBotResponse = (userMessage: string) => {
     const lowerMessage = userMessage.toLowerCase();
@@ -122,11 +138,14 @@ export function ChatWidget() {
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.2 }}
           >
-            <Card className="w-80 h-[500px] bg-white shadow-xl rounded-lg flex flex-col">
+            <Card className="w-96 h-[600px] bg-white shadow-xl rounded-lg flex flex-col">
               <div className="p-4 border-b flex justify-between items-center bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-t-lg">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                  <h3 className="font-semibold">HydroMan Assistant</h3>
+                  <div>
+                    <h3 className="font-semibold">HydroMan</h3>
+                    <p className="text-xs text-blue-100">Your Hydropower Expert</p>
+                  </div>
                 </div>
                 <Button
                   variant="ghost"
@@ -138,7 +157,7 @@ export function ChatWidget() {
                 </Button>
               </div>
               
-              <div className="flex-1 p-4 overflow-y-auto">
+              <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
                 {messages.map((message, index) => (
                   <motion.div
                     key={index}
@@ -149,14 +168,14 @@ export function ChatWidget() {
                     }`}
                   >
                     <div
-                      className={`inline-block p-3 rounded-lg ${
+                      className={`inline-block p-3 rounded-lg max-w-[85%] ${
                         message.isUser
                           ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white'
-                          : 'bg-gray-100 text-gray-800'
+                          : 'bg-white text-gray-800 shadow-sm border border-gray-100'
                       }`}
                     >
                       {message.text.split('\n').map((line, i) => (
-                        <p key={i}>{line}</p>
+                        <p key={i} className="mb-1 last:mb-0">{line}</p>
                       ))}
                       <div className="flex items-center gap-1 mt-1 text-xs opacity-70">
                         <Clock className="h-3 w-3" />
@@ -175,7 +194,7 @@ export function ChatWidget() {
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="flex items-center space-x-2"
+                    className="flex items-center space-x-2 bg-white p-3 rounded-lg shadow-sm inline-block"
                   >
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -188,12 +207,12 @@ export function ChatWidget() {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={handleSendMessage} className="p-4 border-t">
+              <form onSubmit={handleSendMessage} className="p-4 border-t bg-white">
                 <div className="flex gap-2">
                   <Input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Ask about hydropower..."
+                    placeholder="Ask HydroMan anything..."
                     className="flex-1"
                   />
                   <Button 
@@ -201,7 +220,11 @@ export function ChatWidget() {
                     className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
                     disabled={isTyping}
                   >
-                    <Send className="h-4 w-4" />
+                    {isTyping ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
               </form>
